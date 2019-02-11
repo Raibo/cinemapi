@@ -5,6 +5,7 @@ from . import views
 
 router = routers.DefaultRouter()
 router.register('current_user', views.CurrentUserViewSet, basename='current_user')
+router.register('register', views.CreateUserViewSet, basename='register')
 router.register('hall', views.HallViewSet)
 router.register('movie', views.MovieViewSet)
 router.register('session', views.SessionViewSet)
@@ -14,5 +15,4 @@ router.register('ticket', views.TicketViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-   # path('current_user/', views.CurrentUserViewSet.as_view(), name='current_user')
 ]

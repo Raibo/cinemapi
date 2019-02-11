@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from . import exceptions
 from cinema.models import Hall
 from cinema.models import Movie
 from cinema.models import Session
@@ -7,18 +8,20 @@ from cinema.models import TicketStatus
 from django.contrib.auth.models import User
 
 
-def no_validate():
-    pass
+def get_changed_entity(serializer):
+    pk = serializer.context['request'].parser_context['kwargs']['pk']
+    if pk:
+        return Movie.objects.filter(id=pk).first()
+    else:
+        return None
 
 
-class CurrentUserSerializer(serializers.ModelSerializer):
-    id_1 = serializers.ReadOnlyField(source="user.id")
-
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'id_1', 'username', 'email')
+        fields = ('id', 'username', 'email')
         extra_kwargs = {
-            'username': {'validators': []},
+            'email': {'required': True},
         }
 
 
@@ -33,11 +36,23 @@ class MovieSerializer(serializers.ModelSerializer):
         model = Movie
         fields = ('id', 'name', 'duration')
 
+    def validate(self, data):
+        entity = get_changed_entity(self)
+        if entity and entity.sessions.exists():
+            raise exceptions.DeleteOrChangeError
+        return data
+
 
 class SessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Session
-        fields = ('id', 'hall', 'movie', 'started_at', 'price')
+        fields = ('id', 'hall', 'movie', 'started_at', 'price', 'tickets')
+
+    def validate(self, data):
+        entity = get_changed_entity(self)
+        if entity and entity.tickets.exists():
+            raise exceptions.DeleteOrChangeError
+        return data
 
 
 class TicketStatusSerializer(serializers.ModelSerializer):
