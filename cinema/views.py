@@ -1,9 +1,7 @@
+from cinemapi.settings import CINEMA
 from django.db.models import ProtectedError
-from rest_framework import viewsets, mixins, generics, permissions, status
-from rest_framework.views import exception_handler
-from django.shortcuts import render
+from rest_framework import viewsets, mixins, permissions
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from . import custom_permissions
 from . import exceptions
 from django.contrib.auth.models import User
@@ -18,6 +16,7 @@ from .serializers import MovieSerializer
 from .serializers import SessionSerializer
 from .serializers import TicketStatusSerializer
 from .serializers import TicketSerializer
+from .serializers import TicketPaySerializer
 
 
 def check_delete_integrity(func):
@@ -44,6 +43,12 @@ class CreateUserViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     permission_classes = (permissions.AllowAny,)
 
 
+class UserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (custom_permissions.IsStaff,)
+
+
 class HallViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Hall.objects.all()
     serializer_class = HallSerializer
@@ -53,7 +58,7 @@ class HallViewSet(viewsets.ReadOnlyModelViewSet):
 class MovieViewSet(viewsets.ModelViewSet):
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
-    permission_classes = (custom_permissions.StaffOrReadOnly,)
+    permission_classes = (custom_permissions.IsStaffOrReadOnly,)
 
     @check_delete_integrity
     def perform_destroy(self, instance):
@@ -63,7 +68,7 @@ class MovieViewSet(viewsets.ModelViewSet):
 class SessionViewSet(viewsets.ModelViewSet):
     queryset = Session.objects.all()
     serializer_class = SessionSerializer
-    permission_classes = (custom_permissions.StaffOrReadOnly,)
+    permission_classes = (custom_permissions.IsStaffOrReadOnly,)
 
     @check_delete_integrity
     def perform_destroy(self, instance):
@@ -75,8 +80,36 @@ class TicketStatusViewSet(viewsets.ModelViewSet):
     serializer_class = TicketStatusSerializer
 
 
-class TicketViewSet(viewsets.ModelViewSet):
-    queryset = Ticket.objects.all()
+class TicketViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = TicketSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            return Ticket.objects
+        else:
+            return Ticket.objects.filter(user=self.request.user)
 
 
+class BookViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    serializer_class = TicketSerializer
+    permission_classes = (custom_permissions.BookForSelfOrIsStaff,)
+
+
+class PayViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
+    serializer_class = TicketPaySerializer
+    permission_classes = (custom_permissions.PayForSelfOrIsStaff,)
+    queryset = Ticket.objects.all()
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        if not partial:
+            raise exceptions.PayOnlyPatchError
+
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data={}, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_update(serializer)
+        return Response(serializer.data)

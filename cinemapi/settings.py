@@ -131,3 +131,12 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=12),
     'REFRESH_TOKEN_LIFETIME': timedelta(hours=24),
 }
+
+CINEMA = {
+    'CINEMA_OPENS_AT': timedelta(hours=8),
+    'CINEMA_CLOSES_AT': timedelta(hours=23),
+    'SESSION_ADDITIONAL_TIME': timedelta(minutes=15+10),
+    'BOOKED_STATUS_ID': 1,
+    'PAYED_STATUS_ID': 2,
+    'BOOK_TIME_THRESHOLD': timedelta(hours=2)
+}

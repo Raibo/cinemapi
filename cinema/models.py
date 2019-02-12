@@ -26,5 +26,7 @@ class TicketStatus(models.Model):
 
 class Ticket(models.Model):
     session = models.ForeignKey(Session, related_name='tickets', on_delete=models.PROTECT, null=False, blank=False)
-    user = models.ForeignKey(User, related_name='tickets', on_delete=models.PROTECT, null=True, blank=False)
-    ticket_status = models.ForeignKey(TicketStatus, on_delete=models.PROTECT, null=False, blank=False)
+    user = models.ForeignKey(User, related_name='tickets', on_delete=models.PROTECT, null=False, blank=False)
+    ticket_status = models.ForeignKey(TicketStatus, related_name='status', on_delete=models.PROTECT, null=False, blank=False)
+    row = models.IntegerField(null=False, blank=False)
+    seat = models.IntegerField(null=False, blank=False)
