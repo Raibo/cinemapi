@@ -73,6 +73,6 @@ body example:
 	"user":4
 }
 
-pay/<id>/
+pay/(id)/
 PATCH
   modify ticket status to "paid"
