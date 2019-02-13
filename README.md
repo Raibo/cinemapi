@@ -36,7 +36,7 @@ POST.
   new access token
 body example:
 {
-    "refresh": "<refresh token>"
+    "refresh": "(refresh token)"
 }
 
 current_user/
