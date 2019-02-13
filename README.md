@@ -1,5 +1,5 @@
 # cinemapi
-Practice rest api project on django. It represents functionality, such as booking and buying tickets to the cinema, viewing movie sessions schedule, movie halls information, etc.
+Practice rest api django project. It represents functionality, such as booking and buying tickets to the cinema, viewing movie sessions schedule, movie halls information, etc.
 
 How to launch:
   1. clone repository
