@@ -42,3 +42,9 @@ class AlreadyPaidError(APIException):
     status_code = status.HTTP_409_CONFLICT
     default_detail = 'Already paid'
     default_code = 'already_paid_error'
+
+
+class DeletePaidTicketError(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = 'Ticket cannot be deleted because it is already paid'
+    default_code = 'delete_paid_ticket_error'

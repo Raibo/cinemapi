@@ -23,11 +23,16 @@ def get_changed_entity(serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        return user
+
     class Meta:
         model = User
-        fields = ('id', 'username', 'email')
+        fields = ('id', 'username', 'email', 'password')
         extra_kwargs = {
             'email': {'required': True},
+            'password': {'required': True, 'write_only': True},
         }
 
 

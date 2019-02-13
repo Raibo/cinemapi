@@ -43,7 +43,7 @@ class CreateUserViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     permission_classes = (permissions.AllowAny,)
 
 
-class UserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class UserViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (custom_permissions.IsStaff,)
@@ -75,14 +75,14 @@ class SessionViewSet(viewsets.ModelViewSet):
         super(SessionViewSet, self).perform_destroy(instance)
 
 
-class TicketStatusViewSet(viewsets.ModelViewSet):
+class TicketStatusViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = TicketStatus.objects.all()
     serializer_class = TicketStatusSerializer
 
 
-class TicketViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class TicketViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
     serializer_class = TicketSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated, custom_permissions.IsStaffOrReadOnly)
 
     def get_queryset(self):
         user = self.request.user
@@ -90,6 +90,11 @@ class TicketViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             return Ticket.objects
         else:
             return Ticket.objects.filter(user=self.request.user)
+
+    def perform_destroy(self, instance):
+        if instance.ticket_status.id == CINEMA['PAYED_STATUS_ID']:
+            raise exceptions.DeletePaidTicketError
+        instance.delete()
 
 
 class BookViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
