@@ -13,7 +13,7 @@ Notes:
 API description:
 
 register/ 
-POST
+POST.
   registers new user (username is required by jwt)
 body example:
 {
@@ -23,7 +23,7 @@ body example:
 }
 
 token/
-POST
+POST.
   jwt tokens
 body example:
 {
@@ -32,6 +32,7 @@ body example:
 }
 
 token/refresh/
+POST.
   new access token
 body example:
 {
@@ -39,31 +40,31 @@ body example:
 }
 
 current_user/
-GET
+GET.
   user info of the caller
 
 user/\[id/\]
-GET
+GET.
   user info of all or specified user
 
 hall/\[id/\]
-GET
+GET.
   cinema halls info
 
 movie/\[id/\]
-GET, POST, PATCH, PUT, DELETE
+GET, POST, PATCH, PUT, DELETE.
   get, set, modify or delete info about movies
 
 session/\[id/\]
-GET, POST, PATCH, PUT, DELETE
+GET, POST, PATCH, PUT, DELETE.
   get, set, modify or delete info about movie sessions
 
 ticket/\[id/\]
-GET, DELETE
+GET, DELETE.
   get all tickets for current user, both booked and paid. If user is staff, includes tickets for all users
 
 book/
-POST
+POST.
   creates a ticket for specified session and seat with status "booked"
 body example:
 {
@@ -74,5 +75,5 @@ body example:
 }
 
 pay/(id)/
-PATCH
+PATCH.
   modify ticket status to "paid"
